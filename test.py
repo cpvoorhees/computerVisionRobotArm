@@ -18,18 +18,11 @@ objp[:,:2] = np.mgrid[0:5,0:7].T.reshape(-1,2)
 # Arrays to store object points and image points from all the images.
 objpoints = [] # 3d point in real world space
 imgpoints = [] # 2d points in image plane.
-
-
  
 imagesLeft = glob.glob('C:\\Users\\chris\\OpenCV Practice\\images\\left\\*.jpg')
 imagesRight =glob.glob('C:\\Users\\chris\\OpenCV Practice\\images\\right\\*.jpg')
 imageL='C:\\Users\\chris\\OpenCV Practice\\images\\left\\*.jpg'
 imageR='C:\\Users\\chris\\OpenCV Practice\\images\\right\\*.jpg'
-
-#imagesLeft = glob.glob('C:\\Users\\chris\\OneDrive\\Pictures\\Camera Roll\\*.jpg')
-#imagesRight =glob.glob('C:\\Users\\chris\\OneDrive\\Desktop\\chessboardpic\\*.jpg')
-#imageL='C:\\Users\\chris\\OneDrive\\Pictures\\Camera Roll\\*.jpg'
-#imageR='C:\\Users\\chris\\OneDrive\\Desktop\\chessboardpic\\*.jpg'
 
 def calibrate_camera(image_folder):
     for fname in image_folder:
@@ -54,41 +47,7 @@ def calibrate_camera(image_folder):
     h,  w = img.shape[:2]
     newcameramtx, roi = cv.getOptimalNewCameraMatrix(mtx, dist, (w,h), 1, (w,h))
     dst = cv.undistort(img, mtx, dist, None, newcameramtx)
- 
-    # crop the image
-    #x, y, w, h = roi
-    #dst = dst[y:y+h, x:x+w]
-    
-    mean_error = 0
-    for i in range(len(objpoints)):
-        imgpoints2, _ = cv.projectPoints(objpoints[i], rvecs[i], tvecs[i], mtx, dist)
-        error = cv.norm(imgpoints[i], imgpoints2, cv.NORM_L2)/len(imgpoints2)
-        mean_error += error
- 
-    print( "total error: {}".format(mean_error/len(objpoints)) )
 
-    return mtx, dist, dst, newcameramtx, roi, rvecs, tvecs, imgpoints
+    return mtx, dist, dst, newcameramtx, roi, rvecs, tvecs
 
-mtxL,distL,dstL,nmtxL,roiL, rL,tL, imgpointsL=calibrate_camera(imagesLeft)
-mtxR,distR,dstR,nmtxR,roiR,rR,tR,imgpointsR=calibrate_camera(imagesRight)
-imgL=cv.imread("C:\\Users\\chris\\OpenCV Practice\\images\\disparityleft\\imgLeftDisparity.jpg", cv.IMREAD_GRAYSCALE)
-imgR=cv.imread("C:\\Users\\chris\\OpenCV Practice\\images\\disparityright\\imgRightDisparity.jpg",cv.IMREAD_GRAYSCALE)
-dstL = cv.undistort(imgL, mtxL, distL, None, nmtxL)
-dstR = cv.undistort(imgR, mtxR, distR, None, nmtxR)
-
-
-
-stereo = cv.StereoBM.create(numDisparities=176, blockSize=5)
-disparity = stereo.compute(imgL,imgR)
-plt.imshow(disparity,'gray')
-plt.show()
-
-width=imgL.shape[0]
-height=imgL.shape[1]
-ret, mtxL,distL,mtxR,distR,R,T,E,F=cv.stereoCalibrate(objpoints,imgpointsL,imgpointsR,mtxL,distL,mtxR,distR,(width,height),criteria,flags = cv.CALIB_FIX_INTRINSIC)
-
-R1, R2, P1, P2, Q, validPixROI1, validPixROI2 = cv.stereoRectify(mtxL, distL,mtxR, distR,(width,height), R, T,flags=cv.CALIB_ZERO_DISPARITY,alpha=0)
-
-
-
-
+ret, mtxL,distL,mtxR,distR,R,T,E,F=cv.stereoCalibrate(objpoints,imgpoints,mtxL,distL,mtxR,distR,(700,700),criteria)
