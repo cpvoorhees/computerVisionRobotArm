@@ -143,11 +143,17 @@ def stereo_calibrate(mtx1, dist1, mtx2, dist2, frames_folder):
     print(ret)
     return R, T
 
-mtx1, dist1 = calibrate_camera(images_folder = 'C:\\Users\\chris\\OpenCV Practice\\images\\left\\*.jpg')
-mtx2, dist2 = calibrate_camera(images_folder = 'C:\\Users\\chris\\OpenCV Practice\\images\\right\\*.jpg')
+mtx1, dist1 = calibrate_camera(images_folder = 'C:\\Users\\chris\\OpenCV Practice\\openCVcode\\images\\left\\*.jpg')
+mtx2, dist2 = calibrate_camera(images_folder = 'C:\\Users\\chris\\OpenCV Practice\\openCVcode\\images\\right\\*.jpg')
  
-R, T = stereo_calibrate(mtx1, dist1, mtx2, dist2, 'C:\\Users\\chris\\OpenCV Practice\\images\\synnced\\*.jpg')
-imgL=cv.imread("C:\\Users\\chris\\OpenCV Practice\\images\\disparityleft\\imgLeftDisparity.jpg", cv.IMREAD_GRAYSCALE)
+
+#R, T = stereo_calibrate(mtx1, dist1, mtx2, dist2, 'C:\\Users\\chris\\OpenCV Practice\\openCVcode\\images\\synnced\\*.jpg')
+images_path = "C:\\Users\\chris\\OpenCV Practice\\openCVcode\\images\\synnced\\*.jpg"
+image_files = glob.glob(images_path)
+R, T = stereo_calibrate(mtx1, dist1, mtx2, dist2, image_files)
+
+
+imgL=cv.imread("C:\\Users\\chris\\OpenCV Practice\\openCVcode\\images\\disparityleft\\imgLeftDisparity.jpg", cv.IMREAD_GRAYSCALE)
 
 
 width=imgL.shape[0]
