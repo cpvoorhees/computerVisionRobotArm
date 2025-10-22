@@ -89,6 +89,15 @@ ret, mtxL,distL,mtxR,distR,R,T,E,F=cv.stereoCalibrate(objpoints,imgpointsL,imgpo
 
 R1, R2, P1, P2, Q, validPixROI1, validPixROI2 = cv.stereoRectify(mtxL, distL,mtxR, distR,(width,height), R, T,flags=cv.CALIB_ZERO_DISPARITY,alpha=0)
 
+img3d=cv.reprojectImageTo3D(disparity,Q)
+
+print(img3d)
+print(Q)
 
 
 
+fig = plt.figure(figsize=(10,8))
+ax = fig.add_subplot(111,projection='3d')
+
+ax.scatter(img3d)
+plt.show()
