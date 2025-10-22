@@ -21,10 +21,10 @@ imgpoints = [] # 2d points in image plane.
 
 
  
-imagesLeft = glob.glob('C:\\Users\\chris\\OpenCV Practice\\images\\left\\*.jpg')
-imagesRight =glob.glob('C:\\Users\\chris\\OpenCV Practice\\images\\right\\*.jpg')
-imageL='C:\\Users\\chris\\OpenCV Practice\\images\\left\\*.jpg'
-imageR='C:\\Users\\chris\\OpenCV Practice\\images\\right\\*.jpg'
+imagesLeft = glob.glob('C:\\Users\\chris\\OpenCV Practice\\openCVcode\\images\\left\\*.jpg')
+imagesRight =glob.glob('C:\\Users\\chris\\OpenCV Practice\\openCVcode\\images\\right\\*.jpg')
+imageL='C:\\Users\\chris\\OpenCV Practice\\openCVcode\\images\\left\\*.jpg'
+imageR='C:\\Users\\chris\\OpenCV Practice\\openCVcode\\images\\right\\*.jpg'
 
 #imagesLeft = glob.glob('C:\\Users\\chris\\OneDrive\\Pictures\\Camera Roll\\*.jpg')
 #imagesRight =glob.glob('C:\\Users\\chris\\OneDrive\\Desktop\\chessboardpic\\*.jpg')
@@ -71,15 +71,15 @@ def calibrate_camera(image_folder):
 
 mtxL,distL,dstL,nmtxL,roiL, rL,tL, imgpointsL=calibrate_camera(imagesLeft)
 mtxR,distR,dstR,nmtxR,roiR,rR,tR,imgpointsR=calibrate_camera(imagesRight)
-imgL=cv.imread("C:\\Users\\chris\\OpenCV Practice\\images\\disparityleft\\imgLeftDisparity.jpg", cv.IMREAD_GRAYSCALE)
-imgR=cv.imread("C:\\Users\\chris\\OpenCV Practice\\images\\disparityright\\imgRightDisparity.jpg",cv.IMREAD_GRAYSCALE)
+imgL=cv.imread("C:\\Users\\chris\\OpenCV Practice\\openCVcode\\images\\disparityleft\\imgLeftDisparity.jpg", cv.IMREAD_GRAYSCALE)
+imgR=cv.imread("C:\\Users\\chris\\OpenCV Practice\\openCVcode\\images\\disparityright\\imgRightDisparity.jpg",cv.IMREAD_GRAYSCALE)
 dstL = cv.undistort(imgL, mtxL, distL, None, nmtxL)
 dstR = cv.undistort(imgR, mtxR, distR, None, nmtxR)
 
 
 
 stereo = cv.StereoBM.create(numDisparities=176, blockSize=5)
-disparity = stereo.compute(imgL,imgR)
+disparity = stereo.compute(dstL,dstR)
 plt.imshow(disparity,'gray')
 plt.show()
 

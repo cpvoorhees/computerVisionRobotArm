@@ -33,8 +33,8 @@ while True:
 
     #if the key pressed if s then the image is captured and saved by both cameras
     elif key == ord('s'):
-        cv2.imwrite("images/right/imgRight" + str(num) + ".jpg", img1)      #writes the image data of the right/left camera to the images file
-        cv2.imwrite("images/left/imgLeft" + str(num) + ".jpg", img2)
+        cv2.imwrite("openCVcode/images/right/imgRight" + str(num) + ".jpg", img1)      #writes the image data of the right/left camera to the images file
+        cv2.imwrite("openCVcode/images/left/imgLeft" + str(num) + ".jpg", img2)
         print("Image captured sucessfully")
         num = num + 1
 
