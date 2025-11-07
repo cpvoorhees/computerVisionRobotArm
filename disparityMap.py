@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def leftRightConsistency(disp_right, disp_left, threshold = 1.0):
+def leftRightConsistency(disp_left, disp_right, threshold = 3.0):
     #find the height and width of the image
     h, w = disp_left.shape
     #creates a variable mask that is the same as disp_left but filled with 1
@@ -55,7 +55,7 @@ def disparityMap(rectified_right, rectified_left, Q):
 
     #the intial parameters for the disparity map these are what we will change using the sliders
     #these are the intial values just to create our intialized disparity map
-    numDisparities = 5 * 16
+    numDisparities = 5
     blockSize = 5
     minDisparity = 0
     speckleWindowSize = 5
@@ -82,7 +82,7 @@ def disparityMap(rectified_right, rectified_left, Q):
         #controls the depth resolution a higher number allows for a wider range  of depth values
         #gives more detail but takes more time to compute
         #must be divisible by 16
-        numDisparities=numDisparities,
+        numDisparities=numDisparities *16,
 
         #larger blocksize leads to a smoother disparity map that's more robust to noise, blurring boundaries and small deatils
         #smaller values preserves small details but are more sensitive to noise 
@@ -153,7 +153,7 @@ def disparityMap(rectified_right, rectified_left, Q):
         # Update the SGBM object with the new parameters
         stereo = cv.StereoSGBM_create(
             minDisparity      = md,
-            numDisparities    = numDisparities,
+            numDisparities    = numDisparities * 16,
             blockSize         = bs,
             P1                = P1,
             P2                = P2,
@@ -192,7 +192,7 @@ def disparityMap(rectified_right, rectified_left, Q):
         disp_vis = cv.normalize(disp_left, None, 0, 255, cv.NORM_MINMAX)
         disp_vis = np.uint8(disp_vis)
 
-        filtered_vis = cv.normalize(filtered, None, 0, 255, cv.NORM_MINMAX)
+        filtered_vis = cv.normalize(filtered_masked, None, 0, 255, cv.NORM_MINMAX)
         filtered_vis = np.uint8(filtered_vis)
 
         conf_vis = cv.normalize(confidence_map, None, 0, 255, cv.NORM_MINMAX)
