@@ -1,12 +1,13 @@
 from huggingface_hub import HfApi, Repository, upload_file
+from ultralytics import YOLO
 import os
 from pathlib import Path
 
 #hugging face account specifications
-hf_username = ''                 #username for your hugging face account
-repo_name = ''                   #repository name for where you want to your model
-model_path = ''                  #local path to your model
-token = ''                      #your token for you hugging face repository
+hf_username = 'dragneel005'                 #username for your hugging face account
+repo_name = 'YOLORobotARm'                   #repository name for where you want to your model
+model_path = 'C:\Users\skana\Downloads\yolo - Copy'                  #local path to your model
+token = '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'                      #your token for you hugging face repository
 
 repo_id = f"{hf_username}/{repo_name}"
 p = Path(model_path)           #finds the file at the end of the path you set
