@@ -225,9 +225,9 @@ def stereoRectification(mtx1, dist1, mtx2, dist2, R, T, width, height, gray1, gr
     rectified_left  = cv.remap(secImg,  left_mapx, left_mapy, cv.INTER_LINEAR)
 
     #draws lines over the image to see if everything is properly rectified
-    for y in range(0, rectified_left.shape[0], 40):
-        cv.line(rectified_left, (0, y), (rectified_left.shape[1], y), (255, 0, 0), 1)
-        cv.line(rectified_right, (0, y), (rectified_right.shape[1], y), (255, 0, 0), 1)
+    # for y in range(0, rectified_left.shape[0], 40):
+    #     cv.line(rectified_left, (0, y), (rectified_left.shape[1], y), (255, 0, 0), 1)
+    #     cv.line(rectified_right, (0, y), (rectified_right.shape[1], y), (255, 0, 0), 1)
 
     #comvines the lines drawn into one image that's side by side
     combined = np.hstack((rectified_left, rectified_right))

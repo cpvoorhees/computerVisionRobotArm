@@ -5,6 +5,40 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
+def leftRightConsistency(disp_right, disp_left, threshold = 1.0):
+    #find the height and width of the image
+    h, w = disp_left.shape
+    #creates a variable mask that is the same as disp_left but filled with 1
+    #set everything inside to 8 bit integers
+    mask = np.ones_like(disp_left, dtype=np.uint8)
+
+    #this array will loop over all pixels in the left disparity map checking them all
+    for y in range(h):
+        for x in range(w):
+            #d is the disparity value at pixel (x,y) in the left disparity map
+            #shows how much the left pixel shifts to match the right pixel
+            d = disp_left[y, x]
+
+            #checks if corresponding picture in the right image exists
+            #if <0 it would be out of the image so we would skip it
+            if x - int(d) >= 0:
+                #corresponding pixel in the right-to-left disparity map
+                #the dsiprity map the takes right to left
+                x_r = x - int(d)
+                x_r = np.clip(x_r, 0, w-1)
+                d_r = disp_right[y, x_r]
+
+                #compares the left and right disparity
+                #if the difference is greater than the threshold than mark it as invalid
+                if abs(d -d_r) > threshold:
+                    mask[y,x] = 0
+            #if the pixel is out of bounds we also mark it as invalid
+            else:
+                mask[y,x] = 0
+
+
+
+
 
 def disparityMap(rectified_right, rectified_left, Q):
     #takes the two images that have been mapped and converts them to grayscale
@@ -15,54 +49,77 @@ def disparityMap(rectified_right, rectified_left, Q):
     rectified_left  = rectified_left.astype(np.uint8)
     rectified_right = rectified_right.astype(np.uint8)
 
+    #prints the shape of the image in pixels to verify they are the same
+    #used as a way to check both images come from similar quality cameraswhich helps for disparity maps
     print(rectified_left.shape, rectified_right.shape)
 
+    #the intial parameters for the disparity map these are what we will change using the sliders
+    #these are the intial values just to create our intialized disparity map
     numDisparities = 5 * 16
     blockSize = 5
     minDisparity = 0
     speckleWindowSize = 5
     speckleRange = 10
     disp12MaxDiff = 0
-    P1 = 0
-    P2 = 0
+    P1 = 8 * 3 * 5 * 5
+    P2 = 32 * 3 * 5 * 5
+    preFilterCap = 0
     stereo = None
+
+    #define the window name we want for the trackbars
     window_name = 'SGBM Parameters'
-    # Use safe numDisparities
-    #finds the height and width of the image
+
 
     #empty call back function
     def nothing(x):
         pass
 
-    init_numDisp = 5          # actual = x16
-    init_blockSize = 5
-    init_minDisp = 0
-    init_speckleWindow = 5
-    init_speckleRange = 10
-    init_disp12 = 0
-    init_P1 = 8 * 3 * 5 * 5
-    init_P2 = 32 * 3 * 5 * 5
-
+    #the function that creates our disparity map with the inital parametrs
     stereo = cv.StereoSGBM_create(
-        minDisparity=init_minDisp,
-        numDisparities=init_numDisp,
-        blockSize=init_blockSize,
-        P1=init_P1,
-        P2=init_P2,
-        disp12MaxDiff=init_disp12,
-        speckleWindowSize=init_speckleWindow,
-        speckleRange=init_speckleRange,
-        preFilterCap = 0,
+        #shifts the disparity range If your images are rectified such that the corresponding points are always to the left in the right image
+        minDisparity=minDisparity,
+
+        #controls the depth resolution a higher number allows for a wider range  of depth values
+        #gives more detail but takes more time to compute
+        #must be divisible by 16
+        numDisparities=numDisparities,
+
+        #larger blocksize leads to a smoother disparity map that's more robust to noise, blurring boundaries and small deatils
+        #smaller values preserves small details but are more sensitive to noise 
+        #must be an odd number
+        blockSize=blockSize,
+
+        #penalty factors for disparity change bewteen neigborhood pixels control the smoothness of the map
+        #Higher values encourage smoother transitions in disparity, potentially reducing noise but also potentially over-smoothing edges and details.
+        P1=P1,
+        P2=P2,
+
+        #Defines the maximum allowed difference between the disparity calculated from left-to-right matching and right-to-left matching for a pixel to be considered valid.
+        #Helps filter out inconsistent matches, improving the reliability of the disparity map, especially at object boundaries.
+        disp12MaxDiff=disp12MaxDiff,
+
+        #These parameters are used for speckle filtering, a post-processing step to remove small, isolated regions of disparity 
+        #speckleWindowSize defines the window size for the filter
+        #speckleRange defines the maximum disparity variation within that window to be considered speckle
+        #help remove noise and artifacts that appear near object boundaries
+        speckleWindowSize=speckleWindowSize,
+        speckleRange=speckleRange,
+
+        #Truncates the input image pixel values after pre-filtering to a specific range
+        #Can help normalize image intensity and reduce the impact of extreme pixel values on the matching process.
+        preFilterCap = preFilterCap,
+
+        #A margin by which the best matching cost should exceed the second-best matching cost for a disparity to be considered unique and valid.
+        #Filters out ambiguous matches, leading to a more confident and cleaner disparity map, reducing noise and false positives.
+        uniquenessRatio = 10,
+
+        #Specifies the SGBM mode, offering different trade-offs between speed and accuracy.
         mode = cv.StereoSGBM_MODE_SGBM
     )
-            # You may need to add other parameters like preFilterCap, uniquenessRatio, mode etc.
     
 
-    # In a real application, you would re-read your left/right images here and compute disparity
-    # disp = sgbm.compute(imgL, imgR).astype(np.float32) / 16.0
-    # cv2.imshow("Disparity Map", disp)
 
-    # Create a black image, a window for controls, and another for the result
+    # We're creating two new windows the first to display the trackbars, the second to display the disparity map
     cv.namedWindow(window_name, cv.WINDOW_NORMAL)
     cv.namedWindow('Disparity Map', cv.WINDOW_NORMAL)
 
@@ -90,6 +147,8 @@ def disparityMap(rectified_right, rectified_left, Q):
         d12 = cv.getTrackbarPos('disp12MaxDiff', window_name)
         P1 = cv.getTrackbarPos('P1 (e.g., 8*c*bs*bs)', window_name)
         P2 = cv.getTrackbarPos('P2 (e.g., 32*c*bs*bs)', window_name)
+        un = cv.getTrackbarPos('UniquenessRatio: ', window_name)
+        pf = cv.getTrackbarPos("prefiltercap: ", window_name)
        
         # Update the SGBM object with the new parameters
         stereo = cv.StereoSGBM_create(
@@ -99,28 +158,35 @@ def disparityMap(rectified_right, rectified_left, Q):
             P1                = P1,
             P2                = P2,
             disp12MaxDiff     = d12,
-            uniquenessRatio   = 0,
+            uniquenessRatio   = un,
             speckleWindowSize = sw,
             speckleRange      = sr,
-            preFilterCap      = 0,
+            preFilterCap      = pf,
             mode              = cv.StereoSGBM_MODE_SGBM_3WAY
         )
-        # Add your image processing code here
-        # (Load/process images, compute disparity, display result)
-        # ...
-        #computes the disparity and converts the data type
+  
         
         right_matcher = cv.ximgproc.createRightMatcher(stereo)
 
         disp_left  = stereo.compute(rectified_left, rectified_right).astype(np.float32) / 16.0
         disp_right = right_matcher.compute(rectified_right, rectified_left).astype(np.float32) / 16.0
 
+        mask = leftRightConsistency(disp_left, disp_right)
+        disp_left_filterd = disp_left.copy()
+        disp_left_filterd[mask == 0] = 0
+
         # --- WLS Filtering ---
         wls = cv.ximgproc.createDisparityWLSFilter(matcher_left=stereo)
         wls.setLambda(8000)
         wls.setSigmaColor(1.5)
 
-        filtered = wls.filter(disp_left, rectified_left, disparity_map_right=disp_right)
+        filtered = wls.filter(disp_left_filterd, rectified_left, disparity_map_right=disp_right)
+
+        #create a confidence map to show which pixels are good
+        confidence_map = wls.getConfidenceMap()
+        threshold = 150  # or adjust dynamically
+        filtered_masked = filtered.copy()
+        filtered_masked[confidence_map < threshold] = 0
 
         # Normalize for display
         disp_vis = cv.normalize(disp_left, None, 0, 255, cv.NORM_MINMAX)
@@ -129,6 +195,10 @@ def disparityMap(rectified_right, rectified_left, Q):
         filtered_vis = cv.normalize(filtered, None, 0, 255, cv.NORM_MINMAX)
         filtered_vis = np.uint8(filtered_vis)
 
+        conf_vis = cv.normalize(confidence_map, None, 0, 255, cv.NORM_MINMAX)
+        conf_vis = np.uint8(conf_vis)
+
+        cv.imshow("Confidence Map", conf_vis)
         cv.imshow("Disparity Map", disp_vis)
         cv.imshow("Filtered Disparity (WLS)", filtered_vis)
 
@@ -137,7 +207,7 @@ def disparityMap(rectified_right, rectified_left, Q):
         if k == 27:
             break
 
-        #plots the disparity map so we can see teh different depths in pizels
+    #plots the disparity map so we can see teh different depths in pizels
     plt.imshow(filtered, 'gray')
     plt.show()
 
@@ -146,3 +216,6 @@ def disparityMap(rectified_right, rectified_left, Q):
         
             
     return filtered
+
+
+
