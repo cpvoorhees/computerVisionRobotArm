@@ -3,6 +3,7 @@ import cv2 as cv
 import glob
 from matplotlib import pyplot as plt
 
+
  
 # termination criteria
 criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001)
