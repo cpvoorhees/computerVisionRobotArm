@@ -20,8 +20,11 @@ while True:
     ret, img1 = cap.read()
     ret2, img2 = cap2.read()
 
-    if((ret2 & ret) == False):
-        print("Stopped receiving frames")
+    if((ret) == False):
+        print("Camera 1 Stopped receiving frames")
+        break
+    if((ret2 ) == False):
+        print("Camera 2 Stopped receiving frames")
         break
 
     #waits 3 seconds for a key press and saves the character pressed
@@ -76,8 +79,8 @@ while True:
 
     #if the key pressed if s then the image is captured and saved by both cameras
     elif key == ord('s'):
-        cv2.imwrite("images/disparityright/imgRightDisparity.jpg", img1)      #writes the image data of the right/left camera to the images file
-        cv2.imwrite("images/disparityleft/imgLeftDisparity.jpg", img2)
+        cv2.imwrite("openCVcode/images/disparityright/imgRightDisparity.jpg", img1)      #writes the image data of the right/left camera to the images file
+        cv2.imwrite("openCVcode/images/disparityleft/imgLeftDisparity.jpg", img2)
         print("Image captured sucessfully")
         break
     #shows image taken in seperate window

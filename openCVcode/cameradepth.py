@@ -14,7 +14,7 @@ criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 # prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
 objp = np.zeros((5*7,3), np.float32)
 objp[:,:2] = np.mgrid[0:5,0:7].T.reshape(-1,2)
- 
+objp = objp * 2
 # Arrays to store object points and image points from all the images.
 objpoints = [] # 3d point in real world space
 imgpoints = [] # 2d points in image plane.
@@ -40,10 +40,9 @@ def calibrate_camera(image_folder):
         # If found, add object points, image points (after refining them)
         if ret == True:
             objpoints.append(objp)
- 
             corners2 = cv.cornerSubPix(gray,corners, (11,11), (-1,-1), criteria)
             imgpoints.append(corners2)
- 
+    
         # Draw and display the corners
             cv.drawChessboardCorners(img, (5,7), corners2, ret)
             #cv.imshow('img', img)
@@ -73,13 +72,16 @@ mtxL,distL,dstL,nmtxL,roiL, rL,tL, imgpointsL=calibrate_camera(imagesLeft)
 mtxR,distR,dstR,nmtxR,roiR,rR,tR,imgpointsR=calibrate_camera(imagesRight)
 imgL=cv.imread("C:\\Users\\chris\\OpenCV Practice\\openCVcode\\images\\disparityleft\\imgLeftDisparity.jpg", cv.IMREAD_GRAYSCALE)
 imgR=cv.imread("C:\\Users\\chris\\OpenCV Practice\\openCVcode\\images\\disparityright\\imgRightDisparity.jpg",cv.IMREAD_GRAYSCALE)
-dstL = cv.undistort(imgL, mtxL, distL, None, nmtxL)
-dstR = cv.undistort(imgR, mtxR, distR, None, nmtxR)
+dstL = cv.undistort(imgL, nmtxL, distL, None, nmtxL)
+dstR = cv.undistort(imgR, nmtxR, distR, None, nmtxR)
 
 
 
-stereo = cv.StereoBM.create(numDisparities=176, blockSize=5)
+stereo = cv.StereoBM.create(numDisparities=16, blockSize=5)
 disparity = stereo.compute(dstL,dstR)
+
+
+
 plt.imshow(disparity,'gray')
 plt.show()
 
@@ -91,13 +93,22 @@ R1, R2, P1, P2, Q, validPixROI1, validPixROI2 = cv.stereoRectify(mtxL, distL,mtx
 
 img3d=cv.reprojectImageTo3D(disparity,Q)
 
+
 print(img3d)
 print(Q)
 
 
+cv.imshow('img',img3d)
+cv.waitKey(0)
+cv.destroyAllWindows()
 
-fig = plt.figure(figsize=(10,8))
-ax = fig.add_subplot(111,projection='3d')
+mask = disparity/16 > 0
+maskedp = img3d[mask]
+fig = plt.figure()
+ax = fig.add_subplot(projection='3d')
+x = maskedp[:,0]
+y = maskedp[:,1]
+z = maskedp[:,2]
 
-ax.scatter(img3d)
+ax.scatter(x,y,z)
 plt.show()
