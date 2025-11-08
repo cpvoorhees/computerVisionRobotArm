@@ -2,7 +2,7 @@ import numpy as np
 import cv2 as cv
 import camera
 import matplotlib.pyplot as plt
-from ultralytics import YOLO
+#from ultralytics import YOLO
 import random
 
 chessboard = (6, 9)
@@ -293,8 +293,8 @@ def depthMapMeters(disparity, Q, mtx1, T):
     return depth_m
 
 
-def YOLOintegration():
-    def getColor(cls_num):
-        random.seed(cls_num)
-        return tuple(random.randint(0, 255) for _ in range(3))
-    yolo = YOLO()
+# def YOLOintegration():
+#     def getColor(cls_num):
+#         random.seed(cls_num)
+#         return tuple(random.randint(0, 255) for _ in range(3))
+#     yolo = YOLO()

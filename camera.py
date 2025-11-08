@@ -8,8 +8,8 @@ def camera():
     imageR = []
 
     #starts up both cameras and turns the video on
-    cap = cv2.VideoCapture(0, cv.CAP_DSHOW)  #right camera
-    cap2 = cv2.VideoCapture(1, cv.CAP_DSHOW)  #left camera
+    cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)  #right camera
+    cap2 = cv2.VideoCapture(1, cv2.CAP_DSHOW)  #left camera
 
     num=0
 
