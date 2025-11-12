@@ -1,6 +1,7 @@
 import camera
 import camera_calibration
 import disparityMap
+import depthMap
 import os
 import cv2 as cv
 from pathlib import Path
@@ -47,7 +48,8 @@ rectified_left, rectified_right, Q = camera_calibration.stereoRectification(mtx1
     
 disparity = disparityMap.disparityMap(rectified_right, rectified_left, Q)
 
-#camera_calibration.depthMap(disparity, Q)
+depthMap.depthMap(disparity, Q)
+depthMap.depthMapMeters(disparity,Q, mtx1, T)
 time2 = time.perf_counter()
 
 print(time2 - time1)
