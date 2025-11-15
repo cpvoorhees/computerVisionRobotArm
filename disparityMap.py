@@ -3,6 +3,7 @@ import camera_calibration
 import cv2 as cv
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 
 def leftRightConsistency(disp_left, disp_right, threshold = 3.0):
@@ -171,16 +172,16 @@ def disparityMap(rectified_right, rectified_left, Q):
         disp_left  = stereo.compute(rectified_left, rectified_right).astype(np.float32) / 16.0
         disp_right = right_matcher.compute(rectified_right, rectified_left).astype(np.float32) / 16.0
 
-        mask = leftRightConsistency(disp_left, disp_right)
-        disp_left_filterd = disp_left.copy()
-        disp_left_filterd[mask == 0] = 0
+        # mask = leftRightConsistency(disp_left, disp_right)
+        # disp_left_filterd = disp_left.copy()
+        # disp_left_filterd[mask == 0] = 0
 
         # --- WLS Filtering ---
         wls = cv.ximgproc.createDisparityWLSFilter(matcher_left=stereo)
         wls.setLambda(8000)
         wls.setSigmaColor(1.5)
 
-        filtered = wls.filter(disp_left_filterd, rectified_left, disparity_map_right=disp_right)
+        filtered = wls.filter(disp_left, rectified_left, disparity_map_right=disp_right)
 
         #create a confidence map to show which pixels are good
         confidence_map = wls.getConfidenceMap()
@@ -192,7 +193,7 @@ def disparityMap(rectified_right, rectified_left, Q):
         disp_vis = cv.normalize(disp_left, None, 0, 255, cv.NORM_MINMAX)
         disp_vis = np.uint8(disp_vis)
 
-        filtered_vis = cv.normalize(filtered_masked, None, 0, 255, cv.NORM_MINMAX)
+        filtered_vis = cv.normalize(filtered, None, 0, 255, cv.NORM_MINMAX)
         filtered_vis = np.uint8(filtered_vis)
 
         conf_vis = cv.normalize(confidence_map, None, 0, 255, cv.NORM_MINMAX)
@@ -208,14 +209,7 @@ def disparityMap(rectified_right, rectified_left, Q):
             break
 
     #plots the disparity map so we can see teh different depths in pizels
-    plt.imshow(filtered, 'gray')
+    plt.imshow(filtered_vis, 'gray')
     plt.show()
-
-        
-            
-        
-            
     return filtered
-
-
 
