@@ -234,7 +234,7 @@ def stereoRectification(mtx1, dist1, mtx2, dist2, R, T, width, height, gray1, gr
     #displays the compined image created
     cv.imshow("Rectified stero pair", combined)
 
-    return rectified_left, rectified_right, Q
+    return right_mapx, right_mapy, left_mapx, left_mapy, Q
 
 
 

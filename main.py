@@ -1,4 +1,5 @@
 import camera
+import video
 import camera_calibration
 import disparityMap
 import depthMap
@@ -39,17 +40,18 @@ else:
     R, T = data['R'], data['T']
     width, height = data['width'], data['height']
 
-
+video.feed()
 
 
 time1 = time.perf_counter()
 
-rectified_left, rectified_right, Q = camera_calibration.stereoRectification(mtx1, dist1, mtx2, dist2, R, T, width, height, disp_right, disp_left)
-    
-disparity = disparityMap.disparityMap(rectified_right, rectified_left, Q)
+right_mapx, right_mapy, left_mapx, left_mapy, Q = camera_calibration.stereoRectification(mtx1, dist1, mtx2, dist2, R, T, width, height, disp_right, disp_left)
 
-depthMap.depthMap(disparity, Q)
-depthMap.depthMapMeters(disparity,Q, mtx1, T)
+
+#disparity = disparityMap.disparityMap(rectified_right, rectified_left, Q)
+
+#depthMap.depthMap(disparity, Q)
+#depthMap.depthMapMeters(disparity,Q, mtx1, T)
 time2 = time.perf_counter()
 
 print(time2 - time1)
