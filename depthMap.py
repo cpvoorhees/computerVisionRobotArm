@@ -4,13 +4,24 @@ import matplotlib.pyplot as plt
 
 def depthMap(disparity, Q):
 
-    disparity[disparity < 0] = np.nan
-    print("Disparity min:", np.min(disparity))
-    print("Disparity max:", np.max(disparity))
-    pointDepth = cv.reprojectImageTo3D(disparity, Q)
+    disp = disparity.astype(np.float32)
+
+    disp2 = disp.copy()
+    disp2[disp2 <= 0] = np.nan
+
+    
+
+    pointDepth = cv.reprojectImageTo3D(disp2, Q)
+
+    print("Depth range:", np.nanmin(pointDepth), np.nanmax(pointDepth))
 
     #for all rows and columns take on the depth or Z value which is at index 2
     depth = pointDepth[:,:,2]
+
+    print("Valid depth pixels:", np.sum(np.isfinite(depth)))
+    print("Depth min:", np.nanmin(depth))
+    print("Depth max:", np.nanmax(depth))
+
 
     #masks the coordinates keeping only the valid depth values
     #for every depth which is zero or less which means the the object was too far away or there was no match
@@ -22,43 +33,42 @@ def depthMap(disparity, Q):
     #converts the float point values to unsigned 8-bit integers which in standar for open-cv display
     depth_vis = np.uint8(depth_vis)
 
-
     #opens a depth map showing normalized depth image
     cv.imshow("Depth Map", depth_vis)
     #pauses program until a key is pressed
-    cv.waitKey(-1)
+    #cv.waitKey(-1)
 
     depth_colored = cv.applyColorMap(depth_vis, cv.COLORMAP_PLASMA)
     cv.imshow("Colored Depth Map", depth_colored)
 
-    plt.imshow(depth_vis, 'gray')
-    plt.show()
+    #plt.imshow(depth_vis, 'gray')
+    #plt.show()
 
-    cv.waitKey(-1)
+    #cv.waitKey(-1)
 
     return depth
 
-#finds the disparity map in meters 
-#input: disparity map, Q projection matrix, right matrix, translation vectors
-#output: returns depth map in meters
-def depthMapMeters(disparity, Q, mtx1, T):
-    f = mtx1[0,0]        
-    B = np.linalg.norm(T)         
-    disparity = disparity.astype(np.float32)
-    disparity[disparity <= 0] = np.nan 
+# #finds the disparity map in meters 
+# #input: disparity map, Q projection matrix, right matrix, translation vectors
+# #output: returns depth map in meters
+# def depthMapMeters(disparity, Q, mtx1, T):
+#     f = mtx1[0,0]        
+#     B = np.linalg.norm(T)         
+#     disparity = disparity.astype(np.float32)
+#     disparity[disparity <= 0] = np.nan 
 
-    # Depth in meters
-    depth_m = (f * B) / disparity
+#     # Depth in meters
+#     depth_m = (f * B) / disparity
 
-    # normalize for visualization
-    depth_vis = cv.normalize(depth_m, None, 0, 255, cv.NORM_MINMAX)
-    depth_vis = np.uint8(depth_vis)
+#     # normalize for visualization
+#     depth_vis = cv.normalize(depth_m, None, 0, 255, cv.NORM_MINMAX)
+#     depth_vis = np.uint8(depth_vis)
 
-    cv.imshow("Depth Map (Meters)", depth_m)
+#     cv.imshow("Depth Map (Meters)", depth_m)
 
-    plt.imshow(depth_vis)
-    plt.show()
+#     plt.imshow(depth_vis)
+#     plt.show()
 
-    cv.waitKey(0)
+#     cv.waitKey(0)
 
-    return depth_m
+#     return depth_m

@@ -1,5 +1,5 @@
 import camera
-import video
+import videos
 import camera_calibration
 import disparityMap
 import depthMap
@@ -32,7 +32,8 @@ if(ans == 'y'):
     mtx1, dist1 = camera_calibration.calibrateCamera(right_images)
     mtx2, dist2 = camera_calibration.calibrateCamera(left_images)
     R, T, gray1, gray2, height, width = camera_calibration.stereocalibrate(mtx1, dist1, mtx2, dist2, right_images, left_images)
-    np.savez('stereo_calibration_data.npz', mtx1=mtx1, dist1=dist1,mtx2=mtx2, dist2=dist2,R=R, T=T, height = height, width = width)
+    right_mapx, right_mapy, left_mapx, left_mapy, Q = camera_calibration.stereoRectification(mtx1, dist1, mtx2, dist2, R, T, width, height, disp_right, disp_left)
+    np.savez('stereo_calibration_data.npz', mtx1=mtx1, dist1=dist1,mtx2=mtx2, dist2=dist2,R=R, T=T, height = height, width = width, right_mapx = right_mapx, right_mapy = right_mapy, left_mapx = left_mapx, left_mapy = left_mapy, Q = Q)
 else:
     data = np.load('stereo_calibration_data.npz')
     mtx1, dist1 = data['mtx1'], data['dist1']
@@ -40,12 +41,11 @@ else:
     R, T = data['R'], data['T']
     width, height = data['width'], data['height']
 
-video.feed()
+videos.feed()
 
 
 time1 = time.perf_counter()
 
-right_mapx, right_mapy, left_mapx, left_mapy, Q = camera_calibration.stereoRectification(mtx1, dist1, mtx2, dist2, R, T, width, height, disp_right, disp_left)
 
 
 #disparity = disparityMap.disparityMap(rectified_right, rectified_left, Q)

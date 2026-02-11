@@ -1,14 +1,18 @@
 import cv2
-import main
 import camera_calibration
 import disparityMap
+import depthMap
 import threading
 import os
 import time
+import numpy as np
+
+data = np.load('stereo_calibration_data.npz')
+right_mapx, right_mapy = data['right_mapx'], data['right_mapy']
+left_mapx, left_mapy = data['left_mapx'], data['left_mapy']
+Q = data['Q']
 
 def feed():
- 
-
     #starts up both cameras and turns the video on
     cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)  #right camera
     cap2 = cv2.VideoCapture(1, cv2.CAP_DSHOW)  #left camera
@@ -23,7 +27,7 @@ def feed():
     while True:
         #reads the frames generated, img is the image data generated, ret is a bool for if any data was read
         ret, img1 = cap.read(0)
-        ret, img2 = cap.read(1)
+        ret, img2 = cap2.read(1)
 
         if((ret) == False):
             print("Stopped receiving frames")
@@ -40,12 +44,12 @@ def feed():
         cv2.imshow('Img 1', img1)          
         cv2.imshow('Img 2', img2)
 
-        re_img1 = cv2.remap(img1, main.right_mapx, main.right_mapy, cv2.INTER_LINEAR)
-        re_img2 = cv2.remap(img2, main.left_mapx, main.left_mapy, cv2.INTER_LINEAR)
+        re_img1 = cv2.remap(img1, right_mapx, right_mapy, cv2.INTER_LINEAR)
+        re_img2 = cv2.remap(img2, left_mapx, left_mapy, cv2.INTER_LINEAR)
 
-        disparityMap.disparityMap(re_img1,re_img2, main.Q)
+        disparity = disparityMap.disparityMap(re_img1,re_img2, Q)
 
-        #depthMap.depthMap(disparity, Q)
+        depthMap.depthMap(disparity, Q)
         #depthMap.depthMapMeters(disparity,Q, mtx1, T)
         
 

@@ -121,95 +121,101 @@ def disparityMap(rectified_right, rectified_left, Q):
 
 
     # We're creating two new windows the first to display the trackbars, the second to display the disparity map
-    cv.namedWindow(window_name, cv.WINDOW_NORMAL)
+    #cv.namedWindow(window_name, cv.WINDOW_NORMAL)
     cv.namedWindow('Disparity Map', cv.WINDOW_NORMAL)
 
     # Create trackbars for each SGBM parameter. The maximum values are illustrative.
     # The ranges need to be adjusted based on the input images and SGBM documentation.
-    cv.createTrackbar('numDisparities (x16)', window_name, numDisparities, 16, nothing) # Max value 16 for numDisparities * 16 range
-    cv.createTrackbar('blockSize (odd, >=5)', window_name, blockSize, 21, nothing)
-    cv.createTrackbar('minDisparity', window_name, minDisparity, 10, nothing)
-    cv.createTrackbar('speckleWindowSize', window_name, speckleWindowSize, 100, nothing)
-    cv.createTrackbar('speckleRange', window_name, speckleRange, 100, nothing)
-    cv.createTrackbar('disp12MaxDiff', window_name, disp12MaxDiff, 25, nothing)
-    cv.createTrackbar('P1 (e.g., 8*c*bs*bs)', window_name, 8 * 3 * 5 * 5, 500, nothing) # Example range for P1
-    cv.createTrackbar('P2 (e.g., 32*c*bs*bs)', window_name, 32 * 3 * 5 * 5, 1000, nothing) # Example range for P2
-    cv.createTrackbar('prefiltercap: ', window_name, 0, 63, nothing)
-    cv.createTrackbar('UniquenessRatio: ', window_name, 0, 30, nothing)
+    # cv.createTrackbar('numDisparities (x16)', window_name, numDisparities, 16, nothing) # Max value 16 for numDisparities * 16 range
+    # cv.createTrackbar('blockSize (odd, >=5)', window_name, blockSize, 21, nothing)
+    # cv.createTrackbar('minDisparity', window_name, minDisparity, 10, nothing)
+    # cv.createTrackbar('speckleWindowSize', window_name, speckleWindowSize, 100, nothing)
+    # cv.createTrackbar('speckleRange', window_name, speckleRange, 100, nothing)
+    # cv.createTrackbar('disp12MaxDiff', window_name, disp12MaxDiff, 25, nothing)
+    # cv.createTrackbar('P1 (e.g., 8*c*bs*bs)', window_name, 8 * 3 * 5 * 5, 500, nothing) # Example range for P1
+    # cv.createTrackbar('P2 (e.g., 32*c*bs*bs)', window_name, 32 * 3 * 5 * 5, 1000, nothing) # Example range for P2
+    # cv.createTrackbar('prefiltercap: ', window_name, 0, 63, nothing)
+    # cv.createTrackbar('UniquenessRatio: ', window_name, 0, 30, nothing)
    
     # Main loop to get trackbar positions and update SGBM
-    while True:
-        # Get current positions of all trackbars
-        numDisparities = cv.getTrackbarPos('numDisparities (x16)', window_name)
-        bs = cv.getTrackbarPos('blockSize (odd, >=5)', window_name)
-        md = cv.getTrackbarPos('minDisparity', window_name)
-        sw = cv.getTrackbarPos('speckleWindowSize', window_name)
-        sr = cv.getTrackbarPos('speckleRange', window_name)
-        d12 = cv.getTrackbarPos('disp12MaxDiff', window_name)
-        P1 = cv.getTrackbarPos('P1 (e.g., 8*c*bs*bs)', window_name)
-        P2 = cv.getTrackbarPos('P2 (e.g., 32*c*bs*bs)', window_name)
-        un = cv.getTrackbarPos('UniquenessRatio: ', window_name)
-        pf = cv.getTrackbarPos("prefiltercap: ", window_name)
+    # Get current positions of all trackbars
+    # numDisparities = cv.getTrackbarPos('numDisparities (x16)', window_name)
+    # bs = cv.getTrackbarPos('blockSize (odd, >=5)', window_name)
+    # md = cv.getTrackbarPos('minDisparity', window_name)
+    # sw = cv.getTrackbarPos('speckleWindowSize', window_name)
+    # sr = cv.getTrackbarPos('speckleRange', window_name)
+    # d12 = cv.getTrackbarPos('disp12MaxDiff', window_name)
+    # P1 = cv.getTrackbarPos('P1 (e.g., 8*c*bs*bs)', window_name)
+    # P2 = cv.getTrackbarPos('P2 (e.g., 32*c*bs*bs)', window_name)
+    # un = cv.getTrackbarPos('UniquenessRatio: ', window_name)
+    # pf = cv.getTrackbarPos("prefiltercap: ", window_name)
        
-        # Update the SGBM object with the new parameters
-        stereo = cv.StereoSGBM_create(
-            minDisparity      = md,
-            numDisparities    = numDisparities * 16,
-            blockSize         = bs,
-            P1                = P1,
-            P2                = P2,
-            disp12MaxDiff     = d12,
-            uniquenessRatio   = un,
-            speckleWindowSize = sw,
-            speckleRange      = sr,
-            preFilterCap      = pf,
-            mode              = cv.StereoSGBM_MODE_SGBM_3WAY
-        )
-  
-        
-        right_matcher = cv.ximgproc.createRightMatcher(stereo)
+    #     # Update the SGBM object with the new parameters
+    # stereo = cv.StereoSGBM_create(
+    #     minDisparity      = md,
+    #     numDisparities    = numDisparities * 16,
+    #     blockSize         = bs,
+    #     P1                = P1,
+    #     P2                = P2,
+    #     disp12MaxDiff     = d12,
+    #     uniquenessRatio   = un,
+    #     speckleWindowSize = sw,
+    #     speckleRange      = sr,
+    #     preFilterCap      = pf,
+    #     mode              = cv.StereoSGBM_MODE_SGBM_3WAY
+    # )
 
-        disp_left  = stereo.compute(rectified_left, rectified_right).astype(np.float32) / 16.0
-        disp_right = right_matcher.compute(rectified_right, rectified_left).astype(np.float32) / 16.0
+    
+    right_matcher = cv.ximgproc.createRightMatcher(stereo)
 
-        # mask = leftRightConsistency(disp_left, disp_right)
-        # disp_left_filterd = disp_left.copy()
-        # disp_left_filterd[mask == 0] = 0
+    disp_left  = stereo.compute(rectified_left, rectified_right).astype(np.float32) / 16.0
+    disp_right = right_matcher.compute(rectified_right, rectified_left).astype(np.float32) / 16.0
 
-        # --- WLS Filtering ---
-        wls = cv.ximgproc.createDisparityWLSFilter(matcher_left=stereo)
-        wls.setLambda(8000)
-        wls.setSigmaColor(1.5)
+    # mask = leftRightConsistency(disp_left, disp_right)
+    # disp_left_filterd = disp_left.copy()
+    # disp_left_filterd[mask == 0] = 0
 
-        filtered = wls.filter(disp_left, rectified_left, disparity_map_right=disp_right)
+    # --- WLS Filtering ---
+    wls = cv.ximgproc.createDisparityWLSFilter(matcher_left=stereo)
+    wls.setLambda(8000)
+    wls.setSigmaColor(1.5)
 
-        #create a confidence map to show which pixels are good
-        confidence_map = wls.getConfidenceMap()
-        threshold = 150  # or adjust dynamically
-        filtered_masked = filtered.copy()
-        filtered_masked[confidence_map < threshold] = 0
+    filtered = wls.filter(disp_left, rectified_left, disparity_map_right=disp_right)
 
-        # Normalize for display
-        disp_vis = cv.normalize(disp_left, None, 0, 255, cv.NORM_MINMAX)
-        disp_vis = np.uint8(disp_vis)
+    #create a confidence map to show which pixels are good
+    confidence_map = wls.getConfidenceMap()
+    threshold = 150  # or adjust dynamically
+    filtered_masked = filtered.copy()
+    filtered_masked[confidence_map < threshold] = 0
 
-        filtered_vis = cv.normalize(filtered, None, 0, 255, cv.NORM_MINMAX)
-        filtered_vis = np.uint8(filtered_vis)
+    # Normalize for display
+    disp_vis = cv.normalize(disp_left, None, 0, 255, cv.NORM_MINMAX)
+    disp_vis = np.uint8(disp_vis)
 
-        conf_vis = cv.normalize(confidence_map, None, 0, 255, cv.NORM_MINMAX)
-        conf_vis = np.uint8(conf_vis)
+    filtered_vis = cv.normalize(filtered, None, 0, 255, cv.NORM_MINMAX)
+    filtered_vis = np.uint8(filtered_vis)
 
-        cv.imshow("Confidence Map", conf_vis)
-        cv.imshow("Disparity Map", disp_vis)
-        cv.imshow("Filtered Disparity (WLS)", filtered_vis)
+    conf_vis = cv.normalize(confidence_map, None, 0, 255, cv.NORM_MINMAX)
+    conf_vis = np.uint8(conf_vis)
 
-        # Exit loop if 'Esc' key is pressed
-        k = cv.waitKey(1) & 0xFF
-        if k == 27:
-            break
+    #cv.imshow("Confidence Map", conf_vis)
+    #cv.imshow("Disparity Map", disp_vis)
+    cv.imshow("Filtered Disparity (WLS)", filtered_vis)
+    print(np.unique(filtered))
+    print(filtered.dtype)
+    print(np.min(filtered), np.max(filtered))
+    print(np.unique(filtered)[:10])
+    print(np.sum(filtered > 0))
+
+
+
+    # Exit loop if 'Esc' key is pressed
+    #k = cv.waitKey(1) & 0xFF
+    #if k == 27:
+    #    break
 
     #plots the disparity map so we can see teh different depths in pizels
-    plt.imshow(filtered_vis, 'gray')
-    plt.show()
+    #plt.imshow(filtered_vis, 'gray')
+    #plt.show()
     return filtered
 
