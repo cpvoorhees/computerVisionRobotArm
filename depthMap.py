@@ -1,22 +1,28 @@
 import cv2 as cv
 import numpy as np
 import matplotlib.pyplot as plt
+import YOLO_code
 
 def depthMap(disparity, Q):
 
     disp = disparity.astype(np.float32)
 
     disp2 = disp.copy()
-    disp2[disp2 <= 0] = np.nan
+    disp2[disp2 < 1] = np.nan
 
     
 
     pointDepth = cv.reprojectImageTo3D(disp2, Q)
 
     print("Depth range:", np.nanmin(pointDepth), np.nanmax(pointDepth))
+    print("Q ", Q)
 
     #for all rows and columns take on the depth or Z value which is at index 2
     depth = pointDepth[:,:,2]
+    #depth[depth <= 100] = np.nan
+    #depth[depth > 8000.0] = np.nan 
+
+    depth = -depth
 
     print("Valid depth pixels:", np.sum(np.isfinite(depth)))
     print("Depth min:", np.nanmin(depth))
@@ -31,6 +37,7 @@ def depthMap(disparity, Q):
     #input: depth values, no existing array we want to write to, target min/mac range from 0 ro 255, and linear scaling
     #depth_vis = cv.normalize(depth_vis, None, 0, 255, cv.NORM_MINMAX)
     #converts the float point values to unsigned 8-bit integers which in standar for open-cv display
+    depth_vis = cv.normalize(depth_vis, None, 0, 255, cv.NORM_MINMAX)
     depth_vis = np.uint8(depth_vis)
 
     #opens a depth map showing normalized depth image

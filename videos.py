@@ -6,6 +6,9 @@ import threading
 import os
 import time
 import numpy as np
+import YOLO_code
+from ultralytics import YOLO
+from matplotlib import pyplot
 
 data = np.load('stereo_calibration_data.npz')
 right_mapx, right_mapy = data['right_mapx'], data['right_mapy']
@@ -41,15 +44,33 @@ def feed():
             break
 
         #shows image taken in seperate window
-        cv2.imshow('Img 1', img1)          
-        cv2.imshow('Img 2', img2)
+        #cv2.imshow('Img 1', img1)          
+        #cv2.imshow('Img 2', img2)
 
         re_img1 = cv2.remap(img1, right_mapx, right_mapy, cv2.INTER_LINEAR)
         re_img2 = cv2.remap(img2, left_mapx, left_mapy, cv2.INTER_LINEAR)
 
-        disparity = disparityMap.disparityMap(re_img1,re_img2, Q)
+        detection = YOLO_code.run_YOLO(re_img2)
 
-        depthMap.depthMap(disparity, Q)
+        
+        
+        disparity = disparityMap.disparityMap(re_img2,re_img1, Q)
+
+        depth_map = depthMap.depthMap(disparity, Q)
+
+        for det in detection:
+            depth = YOLO_code.get_object_depth(depth_map, det["bbox"])
+            if depth is None:
+                continue
+
+            x1, y1, x2, y2 = det["bbox"]
+
+            label = f'{det["class"]} {depth/1000:.2f} m'
+            cv2.rectangle(re_img2, (x1, y1), (x2, y2), (0,255,0), 2)
+            cv2.putText(re_img2, label, (x1, y1-5),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 2)
+
+        cv2.imshow("YOLO Detection", re_img2)
         #depthMap.depthMapMeters(disparity,Q, mtx1, T)
         
 
