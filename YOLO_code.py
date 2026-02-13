@@ -1,7 +1,11 @@
 from ultralytics import YOLO
 import numpy as np
+import openvino
+
 
 model = YOLO("my_model.pt")
+
+model.export(format=openvino)
 
 def run_YOLO(frame):
 

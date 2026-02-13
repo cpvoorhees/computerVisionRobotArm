@@ -7,28 +7,33 @@ import os
 import cv2 as cv
 from pathlib import Path
 import glob
+import queue
+import threading
 import time
 import matplotlib.pyplot as plt
 import numpy as np
 
-#camera.camera()
-#camera.disparityCam()
-
-
-right_img = Path("images/right")
-left_img = Path("images/left")
-
-disparity_right = Path("images/disparityright")
-disparity_left = Path("images/disparityleft")
-
-right_images = list(right_img.glob("*.jpg"))  # or *.png
-left_images  = list(left_img.glob("*.jpg"))
-
-disp_right = list(disparity_right.glob("*.jpg"))
-disp_left = list(disparity_left.glob("*.jpg"))
+frame_queue = queue.Queue(maxsize=1)
+depth_queue = queue.Queue(maxsize=1)
 
 ans = input("Do you want to calibrate your cameras (y/n)")
 if(ans == 'y'):
+    #camera.camera()
+    #camera.disparityCam()
+
+
+    right_img = Path("images/right")
+    left_img = Path("images/left")
+
+    disparity_right = Path("images/disparityright")
+    disparity_left = Path("images/disparityleft")
+
+    right_images = list(right_img.glob("*.jpg"))  # or *.png
+    left_images  = list(left_img.glob("*.jpg"))
+
+    disp_right = list(disparity_right.glob("*.jpg"))
+    disp_left = list(disparity_left.glob("*.jpg"))
+
     mtx1, dist1 = camera_calibration.calibrateCamera(right_images)
     mtx2, dist2 = camera_calibration.calibrateCamera(left_images)
     R, T, gray1, gray2, height, width = camera_calibration.stereocalibrate(mtx1, dist1, mtx2, dist2, right_images, left_images)
@@ -41,17 +46,21 @@ else:
     R, T = data['R'], data['T']
     width, height = data['width'], data['height']
 
-videos.feed()
 
+cap = cv.VideoCapture(0, cv.CAP_DSHOW)  #right camera
+cap2 = cv.VideoCapture(1, cv.CAP_DSHOW)  #left camera
+stop_event = threading.Event()
 
-time1 = time.perf_counter()
+threads = [
+    threading.Thread(target=videos.feed, args=(frame_queue, stop_event)),
+    threading.Thread(target=disparityMap.disparityMap, args=(frame_queue, depth_queue, stop_event)),
+]
 
+for t in threads:
+    t.start()
 
+for t in threads:
+    t.join()
 
-#disparity = disparityMap.disparityMap(rectified_right, rectified_left, Q)
-
-#depthMap.depthMap(disparity, Q)
-#depthMap.depthMapMeters(disparity,Q, mtx1, T)
-time2 = time.perf_counter()
-
-print(time2 - time1)
+cap.release()
+cv.destroyAllWindows()
