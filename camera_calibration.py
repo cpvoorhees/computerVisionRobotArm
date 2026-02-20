@@ -171,10 +171,10 @@ def stereocalibrate(mtx1, dist1, mtx2, dist2, frame1, frame2):
             #the last avlue is a boolean that lets the function know if the corners were found sucessfully or not
             #finally imshow displays the image that we just drew the corners on  (window name, image to be displayed)
             #waitkey is used to keep the image window open to look at
-            cv.drawChessboardCorners(frameR, (5,8), corners1, c_ret1)
+            cv.drawChessboardCorners(frameR, chessboard, corners1, c_ret1)
             cv.imshow('Right', frameR)
 
-            cv.drawChessboardCorners(frameL, (5,8), corners2, c_ret2)
+            cv.drawChessboardCorners(frameL, chessboard, corners2, c_ret2)
             cv.imshow('Left', frameL)
             cv.waitKey(500)
 
