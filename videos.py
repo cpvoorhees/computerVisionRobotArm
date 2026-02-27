@@ -68,13 +68,13 @@ def feed(frame_queue, depth_queue, stop_event, cap, cap2):
             #depth_map = depthMap.depthMap(disparity, Q)
 
             for det in detection:
-                depth = YOLO_code.get_object_depth(depth_map, det["bbox"])
+                depth, width, height, dep = YOLO_code.get_object_depth(depth_map, det["bbox"])
                 if depth is None:
                     continue
 
                 x1, y1, x2, y2 = det["bbox"]
 
-                label = f'{det["class"]} {depth/1000:.2f} m'
+                label = f'{det["class"]} {dep/1000:.2f} m'
                 cv2.rectangle(re_img2, (x1, y1), (x2, y2), (0,255,0), 2)
                 cv2.putText(re_img2, label, (x1, y1-5),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 2)

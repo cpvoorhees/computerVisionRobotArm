@@ -1,11 +1,7 @@
 from ultralytics import YOLO
 import numpy as np
-import openvino
-
 
 model = YOLO("my_model.pt")
-
-model.export(format=openvino)
 
 def run_YOLO(frame):
 
@@ -31,10 +27,38 @@ def get_object_depth(depth_map, bbox):
     #create the bounds for hte box based on teh dimensions of the object
     x1, y1, x2, y2 = bbox
 
-    roi = depth_map[y1:y2, x1:x2]
-    roi = roi[np.isfinite(roi)]
+    pad = 0.2
+    dx = int((x2 - x1))
+    dy = int((y2 - y1))
 
-    if roi.size == 0:
+    roi = depth_map[y1+dy:y2-dy, x1+dx:x2-dx]
+
+    roi = roi[np.isfinite(roi)]
+    z = roi[:,:,2]
+
+    X = roi[:,0]
+    Y = roi[:,1]
+    Z = roi[:,2]
+
+    width = np.percentile(X, 95) - np.percentile(X, 5)
+    height = np.percentile(Y, 95) - np.percentile(Y,5)
+    dep = np.percentile(Z, 95) - np.percentile(Z, 5)
+
+    if roi.size < 50:
         return None
-    #this returns a stable depth to us so that we can see it
-    return np.median(roi)
+
+    z = np.median(roi)
+    mad = np.median(np.abs(roi - z))
+
+    roi = roi[np.abs(roi - z) < 3 * mad]
+
+    depth = np.mean(roi)
+
+    print(f"""
+    Cube:
+      width  = {width:.3f} m
+      height = {height:.3f} m
+      depth  = {dep:.3f} m
+    """)
+
+    return depth, width, height, dep
