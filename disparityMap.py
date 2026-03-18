@@ -52,7 +52,7 @@ def disparityMap(rectified_right, rectified_left, Q):
 
     #prints the shape of the image in pixels to verify they are the same
     #used as a way to check both images come from similar quality cameraswhich helps for disparity maps
-    print(rectified_left.shape, rectified_right.shape)
+    #print(rectified_left.shape, rectified_right.shape)
 
     #the intial parameters for the disparity map these are what we will change using the sliders
     #these are the intial values just to create our intialized disparity map
@@ -201,11 +201,11 @@ def disparityMap(rectified_right, rectified_left, Q):
     #cv.imshow("Confidence Map", conf_vis)
     #cv.imshow("Disparity Map", disp_vis)
     cv.imshow("Filtered Disparity (WLS)", filtered_vis)
-    print(np.unique(filtered))
-    print(filtered.dtype)
-    print(np.min(filtered), np.max(filtered))
-    print(np.unique(filtered)[:10])
-    print(np.sum(filtered > 0))
+    #print(np.unique(filtered))
+    #print(filtered.dtype)
+    #print(np.min(filtered), np.max(filtered))
+    #print(np.unique(filtered)[:10])
+    #print(np.sum(filtered > 0))
 
 
 

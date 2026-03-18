@@ -11,7 +11,7 @@ import time
 import matplotlib.pyplot as plt
 import numpy as np
 
-#camera.camera()
+camera.camera()
 #camera.disparityCam()
 
 

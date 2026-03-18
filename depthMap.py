@@ -14,8 +14,8 @@ def depthMap(disparity, Q):
 
     pointDepth = cv.reprojectImageTo3D(disp2, Q)
 
-    print("Depth range:", np.nanmin(pointDepth), np.nanmax(pointDepth))
-    print("Q ", Q)
+    #print("Depth range:", np.nanmin(pointDepth), np.nanmax(pointDepth))
+    #print("Q ", Q)
 
     #for all rows and columns take on the depth or Z value which is at index 2
     depth = pointDepth[:,:,2]
@@ -24,9 +24,9 @@ def depthMap(disparity, Q):
 
     depth = -depth
 
-    print("Valid depth pixels:", np.sum(np.isfinite(depth)))
-    print("Depth min:", np.nanmin(depth))
-    print("Depth max:", np.nanmax(depth))
+    #print("Valid depth pixels:", np.sum(np.isfinite(depth)))
+    #print("Depth min:", np.nanmin(depth))
+    #print("Depth max:", np.nanmax(depth))
 
 
     #masks the coordinates keeping only the valid depth values

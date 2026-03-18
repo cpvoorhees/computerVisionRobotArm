@@ -9,6 +9,7 @@ import numpy as np
 import YOLO_code
 from ultralytics import YOLO
 from matplotlib import pyplot
+import pyserial
 
 data = np.load('stereo_calibration_data.npz')
 right_mapx, right_mapy = data['right_mapx'], data['right_mapy']
@@ -67,10 +68,16 @@ def feed():
 
             label = f'{det["class"]} {depth/1000:.2f} m'
             cv2.rectangle(re_img2, (x1, y1), (x2, y2), (0,255,0), 2)
-            cv2.putText(re_img2, label, (x1, y1-5),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 2)
+            #cv2.putText(re_img2, label, (x1, y1-5),
+                #cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 2)
+            
+            x = (x1 + x2) // 2
+            y = (y1 + y2) // 2
+            #pyserial.timofey(x, y, depth)
 
         cv2.imshow("YOLO Detection", re_img2)
+
+
         #depthMap.depthMapMeters(disparity,Q, mtx1, T)
         
 

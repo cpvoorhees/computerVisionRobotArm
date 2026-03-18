@@ -5,9 +5,9 @@ import matplotlib.pyplot as plt
 #from ultralytics import YOLO
 import random
 
-chessboard = (6, 9)
+chessboard = (7, 7)
 framesize = (640,480)
-worldSize = 1      #size of chessboard squares
+worldSize = 20      #size of chessboard squares
 
 
 #############################################Indivual Camera Calibration###########################################################
@@ -243,8 +243,8 @@ def stereoRectification(mtx1, dist1, mtx2, dist2, R, T, width, height, gray1, gr
 def depthMap(disparity, Q):
 
     disparity[disparity < 0] = np.nan
-    print("Disparity min:", np.min(disparity))
-    print("Disparity max:", np.max(disparity))
+    #print("Disparity min:", np.min(disparity))
+    #print("Disparity max:", np.max(disparity))
     pointDepth = cv.reprojectImageTo3D(disparity, Q)
 
     #for all rows and columns take on the depth or Z value which is at index 2
