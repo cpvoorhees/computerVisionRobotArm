@@ -1,7 +1,7 @@
 from ultralytics import YOLO
 import numpy as np
 
-model = YOLO("my_model.pt")
+model = YOLO("yolo8x.pt")
 
 def run_YOLO(frame):
 
