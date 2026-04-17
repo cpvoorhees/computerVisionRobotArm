@@ -73,7 +73,10 @@ def feed():
             
             x = (x1 + x2) // 2
             y = (y1 + y2) // 2
-            #pyserial.timofey(x, y, depth)
+            ard_depth = 1-depth
+            ard_x = np.sqrt(x**2) + y**2
+            ard_a = np.arctan(y/x)
+            pyserial.timofey(ard_x, ard_a, ard_depth)
 
         cv2.imshow("YOLO Detection", re_img2)
 
